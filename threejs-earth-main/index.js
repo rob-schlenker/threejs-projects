@@ -7,6 +7,7 @@ import { getFresnelMat } from "./src/getFresnelMat.js";
 const w = window.innerWidth;
 const h = window.innerHeight;
 const scene = new THREE.Scene();
+
 const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
 camera.position.z = 5;
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -19,6 +20,7 @@ renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 const earthGroup = new THREE.Group();
 earthGroup.rotation.z = -23.4 * Math.PI / 180;
 scene.add(earthGroup);
+
 new OrbitControls(camera, renderer.domElement);
 const detail = 12;
 const loader = new THREE.TextureLoader();
