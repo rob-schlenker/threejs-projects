@@ -1,87 +1,128 @@
-import * as THREE from "three";
-import { OrbitControls } from 'jsm/controls/OrbitControls.js';
+import * as THREE from 'three'
+import { OrbitControls } from 'jsm/controls/OrbitControls.js'
+import { GLTFExporter } from '../getting-started-threejs-start/assets/GLTFExporter.js'
 
-import getStarfield from "./src/getStarfield.js";
-import { getFresnelMat } from "./src/getFresnelMat.js";
+import getStarfield from './src/getStarfield.js'
 
-const w = window.innerWidth;
-const h = window.innerHeight;
-const scene = new THREE.Scene();
+const w = window.innerWidth
+const h = window.innerHeight
+const scene = new THREE.Scene()
 
-const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-camera.position.z = 5;
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(w, h);
-document.body.appendChild(renderer.domElement);
+const camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000)
+camera.position.z = 5
+const renderer = new THREE.WebGLRenderer({ antialias: true })
+renderer.setSize(w, h)
+document.body.appendChild(renderer.domElement)
 // THREE.ColorManagement.enabled = true;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping
+renderer.outputColorSpace = THREE.LinearSRGBColorSpace
 
-const earthGroup = new THREE.Group();
-earthGroup.rotation.z = -23.4 * Math.PI / 180;
-scene.add(earthGroup);
+const earthGroup = new THREE.Group()
+earthGroup.rotation.z = (-23.4 * Math.PI) / 180
+scene.add(earthGroup)
 
-new OrbitControls(camera, renderer.domElement);
-const detail = 12;
-const loader = new THREE.TextureLoader();
-const geometry = new THREE.IcosahedronGeometry(1, detail);
-const material = new THREE.MeshPhongMaterial({
-  map: loader.load("./textures/00_earthmap1k.jpg"),
-  specularMap: loader.load("./textures/02_earthspec1k.jpg"),
-  bumpMap: loader.load("./textures/01_earthbump1k.jpg"),
+new OrbitControls(camera, renderer.domElement)
+const detail = 12
+const loader = new THREE.TextureLoader()
+const geometry = new THREE.IcosahedronGeometry(1, detail)
+const material = new THREE.MeshStandardMaterial({
+  map: loader.load('./textures/00_earthmap1k.jpg'),
+  bumpMap: loader.load('./textures/01_earthbump1k.jpg'),
   bumpScale: 0.04,
-});
-// material.map.colorSpace = THREE.SRGBColorSpace;
-const earthMesh = new THREE.Mesh(geometry, material);
-earthGroup.add(earthMesh);
+})
+const earthMesh = new THREE.Mesh(geometry, material)
+earthGroup.add(earthMesh)
 
 const lightsMat = new THREE.MeshBasicMaterial({
-  map: loader.load("./textures/03_earthlights1k.jpg"),
+  map: loader.load('./textures/03_earthlights1k.jpg'),
   blending: THREE.AdditiveBlending,
-});
-const lightsMesh = new THREE.Mesh(geometry, lightsMat);
-earthGroup.add(lightsMesh);
+  transparent: true,
+})
+const lightsMesh = new THREE.Mesh(geometry, lightsMat)
+earthGroup.add(lightsMesh)
 
 const cloudsMat = new THREE.MeshStandardMaterial({
-  map: loader.load("./textures/04_earthcloudmap.jpg"),
+  map: loader.load('./textures/04_earthcloudmap.jpg'),
   transparent: true,
   opacity: 0.8,
   blending: THREE.AdditiveBlending,
   alphaMap: loader.load('./textures/05_earthcloudmaptrans.jpg'),
-  // alphaTest: 0.3,
-});
-const cloudsMesh = new THREE.Mesh(geometry, cloudsMat);
-cloudsMesh.scale.setScalar(1.003);
-earthGroup.add(cloudsMesh);
+})
+const cloudsMesh = new THREE.Mesh(geometry, cloudsMat)
+cloudsMesh.scale.setScalar(1.003)
+earthGroup.add(cloudsMesh)
 
-const fresnelMat = getFresnelMat();
-const glowMesh = new THREE.Mesh(geometry, fresnelMat);
-glowMesh.scale.setScalar(1.01);
-earthGroup.add(glowMesh);
+const fresnelMat = new THREE.MeshBasicMaterial({
+  color: 0x00ffff,
+  transparent: true,
+  opacity: 0.5,
+})
+const glowMesh = new THREE.Mesh(geometry, fresnelMat)
+glowMesh.scale.setScalar(1.01)
+earthGroup.add(glowMesh)
 
-const stars = getStarfield({numStars: 2000});
-scene.add(stars);
+const stars = getStarfield({ numStars: 2000 })
+scene.add(stars)
 
-const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
-sunLight.position.set(-2, 0.5, 1.5);
-scene.add(sunLight);
+// Update light configuration to avoid direction loss
+const sunLight = new THREE.DirectionalLight(0xffffff, 2.0)
+sunLight.position.set(-2, 0.5, 1.5)
+const lightTarget = new THREE.Object3D()
+lightTarget.position.set(0, 0, -1)
+sunLight.add(lightTarget)
+sunLight.target = lightTarget
+scene.add(sunLight)
 
 function animate() {
-  requestAnimationFrame(animate);
+  requestAnimationFrame(animate)
 
-  earthMesh.rotation.y += 0.002;
-  lightsMesh.rotation.y += 0.002;
-  cloudsMesh.rotation.y += 0.0023;
-  glowMesh.rotation.y += 0.002;
-  stars.rotation.y -= 0.0002;
-  renderer.render(scene, camera);
+  earthMesh.rotation.y += 0.002
+  lightsMesh.rotation.y += 0.002
+  cloudsMesh.rotation.y += 0.0023
+  glowMesh.rotation.y += 0.002
+  stars.rotation.y -= 0.0002
+  renderer.render(scene, camera)
 }
 
-animate();
+animate()
 
-function handleWindowResize () {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+function handleWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight
+  camera.updateProjectionMatrix()
+  renderer.setSize(window.innerWidth, window.innerHeight)
 }
-window.addEventListener('resize', handleWindowResize, false);
+window.addEventListener('resize', handleWindowResize, false)
+
+// Function to download the GLB file
+function downloadGLB(data) {
+  const blob = new Blob([data], { type: 'model/gltf-binary' })
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = 'scene.glb'
+  link.click()
+}
+
+// Add a button to trigger GLB export
+const exportButton = document.createElement('button')
+exportButton.textContent = 'Export GLB'
+exportButton.style.position = 'absolute'
+exportButton.style.top = '10px'
+exportButton.style.left = '10px'
+exportButton.style.zIndex = '1000'
+document.body.appendChild(exportButton)
+
+// Add event listener to the button
+exportButton.addEventListener('click', () => {
+  const exporter = new GLTFExporter()
+  exporter.parse(
+    scene,
+    (result) => {
+      if (result instanceof ArrayBuffer) {
+        downloadGLB(result)
+      } else {
+        console.error('GLTFExporter did not return a binary result.')
+      }
+    },
+    { binary: true }, // Export as binary GLB
+  )
+})
