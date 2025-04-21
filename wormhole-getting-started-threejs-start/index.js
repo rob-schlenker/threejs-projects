@@ -41,15 +41,15 @@ const line = new THREE.Line(lineGeometry, lineMaterial)
 
 //create a tube geometry from the spline
 const tubeGeometry = new THREE.TubeGeometry(spline, 222, 0.65, 18, true)
-// const tubeMaterial = new THREE.MeshBasicMaterial({
-//   color: 'blue',
-//   side: THREE.DoubleSide,
-//   wireframe: true,
-//   transparent: true, // Optional: transparency
-//   opacity: 0.2, // Optional: adjust transparency
-// })
-// const tube = new THREE.Mesh(tubeGeometry, tubeMaterial)
-// scene.add(tube)
+const tubeMaterial = new THREE.MeshBasicMaterial({
+  color: 'darkblue',
+  side: THREE.DoubleSide,
+  // wireframe: true,
+  transparent: true, // Optional: transparency
+  opacity: 0.08, // Optional: adjust transparency
+})
+const tube = new THREE.Mesh(tubeGeometry, tubeMaterial)
+scene.add(tube)
 
 // create edge geometry from the spline
 const edges = new THREE.EdgesGeometry(tubeGeometry, 0.2)
