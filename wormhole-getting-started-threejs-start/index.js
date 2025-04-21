@@ -42,9 +42,11 @@ const line = new THREE.Line(lineGeometry, lineMaterial)
 //create a tube geometry from the spline
 const tubeGeometry = new THREE.TubeGeometry(spline, 222, 0.65, 18, true)
 // const tubeMaterial = new THREE.MeshBasicMaterial({
-//   color: 0x0099ff,
-//   // side: THREE.DoubleSide,
+//   color: 'blue',
+//   side: THREE.DoubleSide,
 //   wireframe: true,
+//   transparent: true, // Optional: transparency
+//   opacity: 0.2, // Optional: adjust transparency
 // })
 // const tube = new THREE.Mesh(tubeGeometry, tubeMaterial)
 // scene.add(tube)
@@ -53,10 +55,12 @@ const tubeGeometry = new THREE.TubeGeometry(spline, 222, 0.65, 18, true)
 const edges = new THREE.EdgesGeometry(tubeGeometry, 0.2)
 const linesMat = new THREE.LineBasicMaterial({
   color: 'red',
-  // linewidth: 2,
+  // linewidth: .02,
 })
 const tubeLines = new THREE.LineSegments(edges, linesMat)
 scene.add(tubeLines)
+
+const boxes = [];
 
 const numBoxes = 55;
 const size = 0.075;
@@ -89,14 +93,13 @@ for (let i = 0; i < numBoxes; i += 1) {
   
   // scene.add(box)
   scene.add(boxLines)
+  boxes.push(boxLines);
 
 }
 
-
-
 function updateCamera(t) {
   const time = t * 0.1
-  const looptime = 4 * 1000
+  const looptime = 6 * 1000
   const p = (time % looptime) / looptime
   const pos = tubeGeometry.parameters.path.getPointAt(p)
   const lookAt = tubeGeometry.parameters.path.getPointAt((p + 0.03) * 1)
@@ -118,6 +121,13 @@ function updateCamera(t) {
 function animate(t = 0) {
   requestAnimationFrame(animate)
   updateCamera(t)
+
+  // Rotate each box
+  boxes.forEach((box) => {
+    box.rotation.x += 0.02; // Adjust speed as needed
+    box.rotation.y += 0.06;
+  });
+
   composer.render(scene, camera)
   ctrls.update()
 }
